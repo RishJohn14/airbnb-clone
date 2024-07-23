@@ -1,5 +1,5 @@
-import Header from "../Header";
+
 
 export default function LoginPage() {
-    return(<Header/>);
+    return(<h1>Text goes here</h1>);
 } 
