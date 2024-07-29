@@ -11,6 +11,7 @@ const multer = require('multer');
 
 require('dotenv').config();
 const User = require('./models/User');
+const Place = require('./models/Place');
 const jwtSecret = 'randomString';
 const app = express(); 
 app.use(express.json());
@@ -110,6 +111,19 @@ app.post('/upload', photosMiddleWare.array('photos',100), (req,res)=> {
         uploadedFiles.push(newPath.replace('uploads/',''));
     }
     res.json(uploadedFiles);
+})
+
+app.post('/places', (req,res)=> {
+    const {token} = req.cookies;
+    const {title,address,addedPhotos,description,perks,extraInfo,checkIn,checkOut,maxGuests} = req.body;
+    jwt.verify(token, jwtSecret, {}, async (err,user)=>{
+            if(err) throw err;
+            const placeDoc = await Place.create({
+                owner: user.id,
+                title,address,addedPhotos,description,perks,extraInfo,checkIn,checkOut,maxGuests,
+            }) 
+        });
+
 })
 
 app.listen(4000);

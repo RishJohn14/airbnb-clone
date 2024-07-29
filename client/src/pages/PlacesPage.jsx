@@ -69,6 +69,13 @@ export default function PlacesPage() {
 
     }
 
+    async function addNewPlace(ev){
+        ev.preventDefault();
+        const placeData = {title,address,addedPhotos,description,perks,extraInfo,checkIn,checkOut,maxGuests
+        };
+        await axios.post('/places',placeData);
+        //Figure out redirect
+    }
 
     return(
         <div>
@@ -84,7 +91,7 @@ export default function PlacesPage() {
             )}
             {action ==='new' && (
                 <div>
-                    <form>
+                    <form onSubmit={addNewPlace}>
                         {inputInfo('Title','Title/Name of your accomodation')}
                         <input type="text" placeholder="Title" value={title} onChange={ev => setTitle(ev.target.value)} />
 
