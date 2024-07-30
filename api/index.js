@@ -120,9 +120,11 @@ app.post('/places', (req,res)=> {
             if(err) throw err;
             const placeDoc = await Place.create({
                 owner: user.id,
-                title,address,addedPhotos,description,perks,extraInfo,checkIn,checkOut,maxGuests,
+                title,address,photos:addedPhotos,description,perks,extraInfo,checkIn,checkOut,maxGuests,
             }) 
+            res.json(placeDoc);
         });
+
 
 })
 

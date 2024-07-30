@@ -1,11 +1,11 @@
-import { useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useParams, Navigate } from "react-router-dom";
 import Perks from "../Perks";
 import axios from "axios";
 
 export default function PlacesPage() {
-    const {action} = useParams();
-
+    let {action} = useParams();
+    
     const [title, setTitle] = useState('');
     const [address, setAddress] = useState('');
     const [addedPhotos, setAddedPhotos] = useState([]);
@@ -16,6 +16,8 @@ export default function PlacesPage() {
     const [checkIn, setCheckIn] = useState('');
     const [checkOut, setCheckOut] = useState('');
     const [maxGuests, setMaxGuests] = useState(0);
+
+    const [redirect, setRedirect] = useState(false);
 
     function inputHeader(text)
     {
@@ -73,14 +75,30 @@ export default function PlacesPage() {
         ev.preventDefault();
         const placeData = {title,address,addedPhotos,description,perks,extraInfo,checkIn,checkOut,maxGuests
         };
+        
         await axios.post('/places',placeData);
-        //Figure out redirect
+        setRedirect(true);
     }
 
+    if(redirect)
+    {
+        console.log(action);
+        return <Navigate to='/account/ ' />
+    }
+    const [places, setPlaces] = useState([]);
+    useEffect(()=>{
+        axios.get('/places').then(({data})=>{
+
+
+        }); 
+    },[])
+
     return(
-        <div>
-            {action!==  'new' && (
+        <div>         
+            {(action!==  'new')&& (
             <div className="text-center">
+                 List of Added Places
+                  <br />
                 <Link className="inline-flex gap-1 bg-primary py-2 px-6 rounded-full text-white" to={'/account/places/new'}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
                 <path fillRule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
