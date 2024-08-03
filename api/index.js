@@ -8,11 +8,14 @@ const cookieParser = require('cookie-parser');
 const imageDownloader = require('image-downloader');
 const fs = require('fs');
 const multer = require('multer');
-
+const mime = require('mime-types');
 require('dotenv').config();
 const User = require('./models/User');
 const Place = require('./models/Place');
+const Booking = require('./models/Booking.js');
+require('dotenv').config();
 const jwtSecret = 'randomString';
+
 const app = express(); 
 app.use(express.json());
 app.use(cookieParser());
@@ -26,6 +29,15 @@ mongoose.connect(process.env.MONGO_URL);
 app.get('/test', (req,res) => {
     res.json('test ok');
 })
+
+function getUserDataFromReq(req) {
+    return new Promise((resolve, reject) => {
+      jwt.verify(req.cookies.token, jwtSecret, {}, async (err, userData) => {
+        if (err) throw err;
+        resolve(userData);
+      });
+    });
+}
 
 
 
@@ -115,17 +127,24 @@ app.post('/upload', photosMiddleWare.array('photos',100), (req,res)=> {
 
 app.post('/places', (req,res)=> {
     const {token} = req.cookies;
-    const {title,address,addedPhotos,description,perks,extraInfo,checkIn,checkOut,maxGuests} = req.body;
+    const {title,address,addedPhotos,description,perks,extraInfo,checkIn,checkOut,maxGuests,price} = req.body;
     jwt.verify(token, jwtSecret, {}, async (err,user)=>{
             if(err) throw err;
             const placeDoc = await Place.create({
-                owner: user.id,
+                owner: user.id,price,
                 title,address,photos:addedPhotos,description,perks,extraInfo,checkIn,checkOut,maxGuests,
             }) 
             res.json(placeDoc);
         });
+});
 
-
-})
+app.get('/places', (req,res)=>{
+    const {token} = req.cookies;
+    jwt.verify(token, jwtSecret, {}, async (err,user)=>{
+        const {id} = user;
+        const allPlaces = await Place.find({owner:id});
+        res.json(allPlaces);
+    });
+});
 
 app.listen(4000);

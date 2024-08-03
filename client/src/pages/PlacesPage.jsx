@@ -5,7 +5,7 @@ import axios from "axios";
 
 export default function PlacesPage() {
     let {action} = useParams();
-    
+
     const [title, setTitle] = useState('');
     const [address, setAddress] = useState('');
     const [addedPhotos, setAddedPhotos] = useState([]);
@@ -18,6 +18,13 @@ export default function PlacesPage() {
     const [maxGuests, setMaxGuests] = useState(0);
 
     const [redirect, setRedirect] = useState(false);
+
+    const [places, setPlaces] = useState([]);
+    useEffect(()=>{
+        axios.get('/places').then(({data})=>{
+            setPlaces(data);
+        }); 
+    },[]);
 
     function inputHeader(text)
     {
@@ -75,37 +82,53 @@ export default function PlacesPage() {
         ev.preventDefault();
         const placeData = {title,address,addedPhotos,description,perks,extraInfo,checkIn,checkOut,maxGuests
         };
-        
-        await axios.post('/places',placeData);
+       // await axios.post('/places',placeData);
         setRedirect(true);
     }
 
     if(redirect)
     {
         console.log(action);
-        return <Navigate to='/account/ ' />
+        return <Navigate to='/account' />
     }
-    const [places, setPlaces] = useState([]);
-    useEffect(()=>{
-        axios.get('/places').then(({data})=>{
+
+    function handleEdit(){
+        const {id} = useParams();
+        console.log(id);
 
 
-        }); 
-    },[])
-
+    }
     return(
         <div>         
-            {(action!==  'new')&& (
-            <div className="text-center">
-                 List of Added Places
-                  <br />
-                <Link className="inline-flex gap-1 bg-primary py-2 px-6 rounded-full text-white" to={'/account/places/new'}>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
-                <path fillRule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
-                </svg>
-
-                Add new Place</Link>
-            </div>
+            {(action!==  'new') && (
+                <div>
+                     <div className="text-center">
+                       List of Added Places
+                       <br />
+                      <Link className="inline-flex gap-1 bg-primary py-2 px-6 rounded-full text-white" to={'/account/places/new'}>
+                      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
+                      <path fillRule="evenodd" d="M12 3.75a.75.75 0 0 1 .75.75v6.75h6.75a.75.75 0 0 1 0 1.5h-6.75v6.75a.75.75 0 0 1-1.5 0v-6.75H4.5a.75.75 0 0 1 0-1.5h6.75V4.5a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
+                      </svg>
+                         Add new Place
+                      </Link>
+                    </div>
+                    <div className="mt-4">
+                        {places.length > 0 && places.map(place => (
+                            <button onClick={handleEdit} className="flex bg-gray-200 p-4 gap-4 rounded-2xl cursor-pointer">
+                                <div className="w-32 h-32 bg-gray-100 shrink-0">
+                                    {place.photos.length > 0 && (
+                                        <img src={place.photos[0]}/>
+                                    )}
+                                </div>
+                                <div className="grow-0 shrink">
+                                <h2 className="text-xl">{place.title}</h2>
+                                <p className="text-sm">{place.description}</p>
+                                </div>
+                               
+                            </button>
+                        ))}
+                    </div>
+                </div>
             )}
             {action ==='new' && (
                 <div>
